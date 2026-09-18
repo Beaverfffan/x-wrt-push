@@ -1,0 +1,39 @@
+From: Beaverfffan <1056715226@qq.com>
+Subject: [PATCH] net: dsa: add the RTL8366UB 802.1Q tagging protocol id
+
+include/net/dsa.h is touched by several patches in sequence, and each of
+them inserts its id right after DSA_TAG_PROTO_MXL862_8021Q_VALUE. That
+only works while every inserter sees the same context, so this patch is
+deliberately numbered last (799-91).
+
+Take a value well above the upstream sequence: 32 is already
+DSA_TAG_PROTO_MXL862_VALUE in v7.0 (master is at 35), so on the next kernel
+bump both taggers would claim it.  Duplicate enumerators compile silently,
+both drivers then carry the alias "dsa_tag:id-32", and
+dsa_tag_driver_get_by_id() returns whichever driver registered first - link
+order decides, with no warning, and the RTL8366UB CPU port would silently end
+up with the MxL862 8-byte tagger.  Nothing indexes by proto value (the module
+alias uses %d), so a value high above the sequence is safe until an id is
+assigned on netdev.
+
+Signed-off-by: Beaverfffan <1056715226@qq.com>
+---
+
+--- a/include/net/dsa.h
++++ b/include/net/dsa.h
+@@ -57,6 +57,7 @@
+ #define DSA_TAG_PROTO_BRCM_LEGACY_FCS_VALUE	29
+ #define DSA_TAG_PROTO_MXL862_VALUE		30
+ #define DSA_TAG_PROTO_MXL862_8021Q_VALUE	31
++#define DSA_TAG_PROTO_RTL8366UB_8021Q_VALUE	200
+ #define DSA_TAG_PROTO_YT921X_VALUE		33
+ #define DSA_TAG_PROTO_YT922X_VALUE		34
+ #define DSA_TAG_PROTO_YT922X_4B_VALUE		35
+@@ -94,6 +95,7 @@
+ 	DSA_TAG_PROTO_VSC73XX_8021Q	= DSA_TAG_PROTO_VSC73XX_8021Q_VALUE,
+ 	DSA_TAG_PROTO_MXL862		= DSA_TAG_PROTO_MXL862_VALUE,
+ 	DSA_TAG_PROTO_MXL862_8021Q	= DSA_TAG_PROTO_MXL862_8021Q_VALUE,
++	DSA_TAG_PROTO_RTL8366UB_8021Q	= DSA_TAG_PROTO_RTL8366UB_8021Q_VALUE,
+ 	DSA_TAG_PROTO_YT921X		= DSA_TAG_PROTO_YT921X_VALUE,
+ 	DSA_TAG_PROTO_YT922X		= DSA_TAG_PROTO_YT922X_VALUE,
+ 	DSA_TAG_PROTO_YT922X_4B		= DSA_TAG_PROTO_YT922X_4B_VALUE,

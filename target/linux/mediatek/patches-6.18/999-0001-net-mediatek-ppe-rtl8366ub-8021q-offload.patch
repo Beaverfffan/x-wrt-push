@@ -1,0 +1,84 @@
+From: Beaverfffan <1056715226@qq.com>
+Subject: [PATCH] net: mediatek: offload RTL8366UB 802.1Q DSA flows through the MTK PPE
+
+The RTL8366UB 802.1Q tagger replaces the native RTL8_4 tag with a
+standard VLAN header, which the MediaTek PPE can both parse and emit.
+x-wrt, however, does not build the upstream mtk_ppe_offload.c: natflow
+substitutes its own mtk_ppe_offload1.c. The flow-offload side of the
+tagger therefore has to be replayed against that live file.
+
+The management VID is packed into flow_offload_hw_path.dsa_port, exactly
+the way the MxL862xx 8021Q path already does it, because natflow rebuilds
+that structure field by field and silently drops anything it does not
+know about. Packing the VID into a field natflow already forwards is the
+only way to get it across the boundary.
+
+Signed-off-by: Beaverfffan <1056715226@qq.com>
+---
+
+--- a/net/dsa/user.c
++++ b/net/dsa/user.c
+@@ -2623,6 +2623,25 @@
+ 		path->dsa_port = ((dsa_tag_8021q_standalone_vid(dp) & 0x3ff) << 5) |
+ 				 dp->index;
+ 		break;
++	case DSA_TAG_PROTO_RTL8366UB_8021Q: {
++		struct net_device *br = dsa_port_bridge_dev_get(dp);
++		u16 vid;
++
++		if (dsa_port_is_vlan_filtering(dp) || dp->index > 4)
++			return -EOPNOTSUPP;
++
++		/* Unlike MXL862, port index 0 is valid here (lan1 is port 0).
++		 * Pack the management VID exactly like MXL862 does: the PPE only
++		 * ever sees this single word, so the VID has to travel inside it.
++		 */
++		if (br)
++			vid = dsa_tag_8021q_bridge_vid(dsa_port_bridge_num_get(dp));
++		else
++			vid = dsa_tag_8021q_standalone_vid(dp);
++
++		path->dsa_port = ((vid & 0x3ff) << 5) | dp->index;
++		break;
++	}
+ 	case DSA_TAG_PROTO_YT922X_4B:
+ 		dsa_tag = dsa_tag_yt922x_4b_standalone_vid(dp);
+ 		/* The software tagger supplies access-port PVIDs. */
+--- a/drivers/net/ethernet/mediatek/mtk_ppe_offload1.c
++++ b/drivers/net/ethernet/mediatek/mtk_ppe_offload1.c
+@@ -276,6 +276,15 @@
+ 			*vid = 0xc00 | ((*port >> 5) & 0x3ff);
+ 			*port &= 0x1f;
+ 			return 0;
++		case DSA_TAG_PROTO_RTL8366UB_8021Q:
++			/* Port index 0 is valid here (lan1), so unlike MXL862 the
++			 * zero index must not be rejected.
++			 */
++			if ((*port & BIT(15)) || (*port & 0x1f) > 4)
++				return -EINVAL;
++			*vid = 0xc00 | ((*port >> 5) & 0x3ff);
++			*port &= 0x1f;
++			return 0;
+ 		case DSA_TAG_PROTO_YT922X_4B:
+ 			*vid = *port;
+ 			/* TX tag bits 13:5 select exactly one physical port. */
+@@ -396,7 +405,8 @@
+ 			}
+ 		}
+ 		if (dsa_proto == DSA_TAG_PROTO_MXL862_8021Q ||
+-		    dsa_proto == DSA_TAG_PROTO_YT922X_4B)
++		    dsa_proto == DSA_TAG_PROTO_YT922X_4B ||
++		    dsa_proto == DSA_TAG_PROTO_RTL8366UB_8021Q)
+ 			mtk_foe_entry_set_vlan(eth, entry, dsa_vid);
+ 		else if (dsa_proto == DSA_TAG_PROTO_MTK)
+ 			mtk_foe_entry_set_dsa(eth, entry, dsa_port);
+@@ -528,7 +538,8 @@
+ 			}
+ 		}
+ 		if (dsa_proto == DSA_TAG_PROTO_MXL862_8021Q ||
+-		    dsa_proto == DSA_TAG_PROTO_YT922X_4B)
++		    dsa_proto == DSA_TAG_PROTO_YT922X_4B ||
++		    dsa_proto == DSA_TAG_PROTO_RTL8366UB_8021Q)
+ 			mtk_foe_entry_set_vlan(eth, entry, dsa_vid);
+ 		else if (dsa_proto == DSA_TAG_PROTO_MTK)
+ 			mtk_foe_entry_set_dsa(eth, entry, dsa_port);
