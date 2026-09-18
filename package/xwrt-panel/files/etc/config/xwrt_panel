@@ -1,0 +1,11 @@
+config panel
+	option brightness '80'
+	option rotate '0'
+	option blank '5'
+	option splash '3'
+	option page_usage '1'
+	option page_system '1'
+	option page_clients '1'
+	option page_ports '1'
+	option page_wifi '1'
+	# option wan_ifaces 'wan wan_2'

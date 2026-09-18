@@ -1,0 +1,5 @@
+{
+	"xwrt_panel": {
+		"init": [ "xwrt-panel" ]
+	}
+}

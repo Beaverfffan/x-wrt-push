@@ -2075,7 +2075,10 @@ define Device/glinet_gl-be10000
   DEVICE_DTS_DIR := ../dts
   DEVICE_DTC_FLAGS := --pad 4096
   DEVICE_DTS_LOADADDR := 0x4ff00000
-  DEVICE_PACKAGES := mt7987-2p5g-phy-firmware kmod-mt7996-233-firmware kmod-hwmon-pwmfan kmod-usb3
+  DEVICE_PACKAGES := mt7987-2p5g-phy-firmware kmod-mt7996-233-firmware \
+	kmod-hwmon-pwmfan kmod-usb3 kmod-backlight-pwm kmod-drm-panel-mipi-dbi \
+	glinet-panel-firmware kmod-input-touchscreen-cst353x kmod-input-evdev \
+	xwrt-panel luci-app-xwrt-panel
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 256k
   PAGESIZE := 4096

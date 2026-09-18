@@ -1,0 +1,116 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: luci-app-xwrt-panel 1.0.0\n"
+"PO-Revision-Date: 2026-09-16\n"
+"Last-Translator: Beaverfffan <1056715226@qq.com>\n"
+"Language-Team: none\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Statistics Panel Screen"
+msgstr "统计面板屏幕"
+
+msgid "Settings for the minimal statistics panel (xwrt-panel) of the GL-BE10000 / GL-BE14000. The panel shows WAN usage, system state, clients with their rate, port links, WAN interfaces and WiFi status. Changes are applied to /etc/config/xwrt_panel and the panel service is restarted on \"Save & Apply\"."
+msgstr "GL-BE10000 / GL-BE14000 极简统计面板（xwrt-panel）设置。面板显示 WAN 用量、系统状态、客户端速率、网口链路、多 WAN 与 WiFi 状态。修改写入 /etc/config/xwrt_panel，点击「保存并应用」后面板服务会重启。"
+
+msgid "Panel service"
+msgstr "面板服务"
+
+msgid "Service state"
+msgstr "服务状态"
+
+msgid "running"
+msgstr "运行中"
+
+msgid "not running"
+msgstr "未运行"
+
+msgid "Control"
+msgstr "控制"
+
+msgid "Restart panel"
+msgstr "重启面板"
+
+msgid "Stop"
+msgstr "停止"
+
+msgid "Service action \"%s\" %s"
+msgstr "服务操作「%s」%s"
+
+msgid "succeeded"
+msgstr "成功"
+
+msgid "failed"
+msgstr "失败"
+
+msgid "Display"
+msgstr "显示"
+
+msgid "Brightness"
+msgstr "亮度"
+
+msgid "Panel backlight brightness, 10 to 100 percent."
+msgstr "面板背光亮度，10 到 100%。"
+
+msgid "Boot logo (s)"
+msgstr "启动 logo（秒）"
+
+msgid "Seconds the x-wrt mark stays on the panel while the service starts up. A touch clears it right away. Set to 0 to skip the splash."
+msgstr "面板启动时 x-wrt 标记停留的秒数，触摸会立即清除。设为 0 则不显示启动画面。"
+
+msgid "Page rotation (s)"
+msgstr "自动翻页（秒）"
+
+msgid "Automatically switch to the next page every N seconds. Set to 0 to only change pages by swiping."
+msgstr "每隔 N 秒自动切换到下一页。设为 0 则只能通过滑动翻页。"
+
+msgid "Blank after (min)"
+msgstr "息屏时间（分钟）"
+
+msgid "Minutes without touch before the backlight turns off. Set to 0 to keep the screen always on. Any touch wakes the panel."
+msgstr "无触摸操作多少分钟后关闭背光。设为 0 则屏幕常亮。任意触摸可唤醒面板。"
+
+msgid "Pages"
+msgstr "页面"
+
+msgid "At least one page must stay enabled."
+msgstr "至少保留一个页面。"
+
+msgid "Usage"
+msgstr "用量"
+
+msgid "WAN up/down rates, totals and a scrolling rate graph."
+msgstr "WAN 上下行速率、累计总量与滚动速率图。"
+
+msgid "System"
+msgstr "系统"
+
+msgid "CPU load, memory, SoC temperature, fan speed and uptime."
+msgstr "CPU 负载、内存占用、SoC 温度、风扇转速与运行时长。"
+
+msgid "Clients"
+msgstr "客户端"
+
+msgid "DHCP leases and snooped clients, with the per-client rate reported by natflow."
+msgstr "DHCP 租约与侦测到的客户端，并显示 natflow 上报的每客户端速率。"
+
+msgid "Ports"
+msgstr "网口"
+
+msgid "Link state and negotiated speed of every wan/lan/sfp port, with its current rate."
+msgstr "每个 wan/lan/sfp 口的链路状态、协商速率与当前速率。"
+
+msgid "WAN"
+msgstr "多 WAN"
+
+msgid "Every WAN interface with its protocol, address and uptime. Handy with mwan3 or several uplinks."
+msgstr "每个 WAN 接口的协议、地址与在线时长。多拨或 mwan3 场景下很实用。"
+
+msgid "WiFi"
+msgstr "WiFi"
+
+msgid "Wireless networks with band, encryption and station count."
+msgstr "无线网络列表，含频段、加密方式与已连接终端数。"

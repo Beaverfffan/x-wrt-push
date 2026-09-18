@@ -1,0 +1,41 @@
+#!/bin/sh /etc/rc.common
+
+# Minimal statistics panel for the GL-BE10000 / BE14000 TFT.
+# Mutually exclusive with glinet-panel-ui: both drive the same DRM device.
+START=99
+USE_PROCD=1
+
+touch_device() {
+	local event name
+
+	for event in /sys/class/input/event*; do
+		[ -e "$event/device/name" ] || continue
+
+		read -r name < "$event/device/name"
+
+		case "$name" in
+		*cst3*|*CST3*|*[Tt]ouch*)
+			echo "/dev/input/${event##*/}"
+			return
+			;;
+		esac
+	done
+}
+
+start_service() {
+	local touch
+
+	# never run alongside glinet-panel-ui
+	if [ -x /etc/init.d/glinet-panel-ui ]; then
+		/etc/init.d/glinet-panel-ui stop 2>/dev/null
+	fi
+
+	touch="$(touch_device)"
+
+	procd_open_instance
+	procd_set_param command /usr/bin/ucode /usr/share/ucode/xwrt-panel/panel.uc
+	procd_set_param env ${touch:+PANEL_TOUCH_DEVICE="$touch"}
+	procd_set_param respawn
+	procd_set_param stderr 1
+	procd_close_instance
+}

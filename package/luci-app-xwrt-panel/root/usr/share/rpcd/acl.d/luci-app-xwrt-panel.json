@@ -1,0 +1,17 @@
+{
+	"luci-app-xwrt-panel": {
+		"description": "Grant access to the xwrt-panel statistics screen settings",
+		"read": {
+			"uci": [ "xwrt_panel" ],
+			"ubus": {
+				"service": [ "list" ]
+			}
+		},
+		"write": {
+			"uci": [ "xwrt_panel" ],
+			"ubus": {
+				"rc": [ "init" ]
+			}
+		}
+	}
+}
