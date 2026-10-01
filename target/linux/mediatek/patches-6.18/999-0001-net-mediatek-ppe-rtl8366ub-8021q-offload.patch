@@ -13,12 +13,17 @@ that structure field by field and silently drops anything it does not
 know about. Packing the VID into a field natflow already forwards is the
 only way to get it across the boundary.
 
+Retargeted against the current upstream x-wrt tree: the YT922X cases are
+wrapped in CONFIG_NET_DSA_TAG_YT922X guards and the two inline
+"dsa_proto == ..." checks became mtk_offload_dsa_uses_vlan(), so the
+RTL8366UB case is added there once instead of at both call sites.
+
 Signed-off-by: Beaverfffan <1056715226@qq.com>
 ---
 
 --- a/net/dsa/user.c
 +++ b/net/dsa/user.c
-@@ -2623,6 +2623,25 @@
+@@ -2621,6 +2621,25 @@
  		path->dsa_port = ((dsa_tag_8021q_standalone_vid(dp) & 0x3ff) << 5) |
  				 dp->index;
  		break;
@@ -41,12 +46,19 @@ Signed-off-by: Beaverfffan <1056715226@qq.com>
 +		path->dsa_port = ((vid & 0x3ff) << 5) | dp->index;
 +		break;
 +	}
+ #if IS_ENABLED(CONFIG_NET_DSA_TAG_YT922X)
  	case DSA_TAG_PROTO_YT922X_4B:
- 		dsa_tag = dsa_tag_yt922x_4b_standalone_vid(dp);
  		/* The software tagger supplies access-port PVIDs. */
 --- a/drivers/net/ethernet/mediatek/mtk_ppe_offload1.c
 +++ b/drivers/net/ethernet/mediatek/mtk_ppe_offload1.c
-@@ -276,6 +276,15 @@
+@@ -249,4 +249,6 @@
+ 	if (proto == DSA_TAG_PROTO_MXL862_8021Q)
+ 		return true;
++	if (proto == DSA_TAG_PROTO_RTL8366UB_8021Q)
++		return true;
+ #if IS_ENABLED(CONFIG_NET_DSA_TAG_YT922X)
+ 	if (proto == DSA_TAG_PROTO_YT922X_4B)
+@@ -289,6 +291,16 @@
  			*vid = 0xc00 | ((*port >> 5) & 0x3ff);
  			*port &= 0x1f;
  			return 0;
@@ -54,31 +66,12 @@ Signed-off-by: Beaverfffan <1056715226@qq.com>
 +			/* Port index 0 is valid here (lan1), so unlike MXL862 the
 +			 * zero index must not be rejected.
 +			 */
-+			if ((*port & BIT(15)) || (*port & 0x1f) > 4)
++			if ((*port & BIT(15)) ||
++			    (*port & 0x1f) > 4)
 +				return -EINVAL;
 +			*vid = 0xc00 | ((*port >> 5) & 0x3ff);
 +			*port &= 0x1f;
 +			return 0;
+ #if IS_ENABLED(CONFIG_NET_DSA_TAG_YT922X)
  		case DSA_TAG_PROTO_YT922X_4B:
- 			*vid = *port;
- 			/* TX tag bits 13:5 select exactly one physical port. */
-@@ -396,7 +405,8 @@
- 			}
- 		}
- 		if (dsa_proto == DSA_TAG_PROTO_MXL862_8021Q ||
--		    dsa_proto == DSA_TAG_PROTO_YT922X_4B)
-+		    dsa_proto == DSA_TAG_PROTO_YT922X_4B ||
-+		    dsa_proto == DSA_TAG_PROTO_RTL8366UB_8021Q)
- 			mtk_foe_entry_set_vlan(eth, entry, dsa_vid);
- 		else if (dsa_proto == DSA_TAG_PROTO_MTK)
- 			mtk_foe_entry_set_dsa(eth, entry, dsa_port);
-@@ -528,7 +538,8 @@
- 			}
- 		}
- 		if (dsa_proto == DSA_TAG_PROTO_MXL862_8021Q ||
--		    dsa_proto == DSA_TAG_PROTO_YT922X_4B)
-+		    dsa_proto == DSA_TAG_PROTO_YT922X_4B ||
-+		    dsa_proto == DSA_TAG_PROTO_RTL8366UB_8021Q)
- 			mtk_foe_entry_set_vlan(eth, entry, dsa_vid);
- 		else if (dsa_proto == DSA_TAG_PROTO_MTK)
- 			mtk_foe_entry_set_dsa(eth, entry, dsa_port);
+ 			if (*port > 8)

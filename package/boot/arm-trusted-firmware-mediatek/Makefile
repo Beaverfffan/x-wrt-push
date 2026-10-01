@@ -629,7 +629,7 @@ define Trusted-Firmware-A/mt7988-emmc-comb-be14000
   BUILD_SUBTARGET:=filogic
   PLAT:=mt7988
   DRAM_USE_COMB:=1
-  SPLASH_GL_BE14000:=1
+  SPLASH_GL_BE14000:=
 endef
 
 define Trusted-Firmware-A/mt7988-sdmmc-comb
@@ -817,8 +817,9 @@ TFA_MAKE_FLAGS += \
 # scripts/gen-boot-logos.py writes it.
 define Build/Prepare
 	$(call Build/Prepare/Default)
-	$(CP) ./files/st7789p3_splash.bin \
-		$(PKG_BUILD_DIR)/plat/mediatek/apsoc_common/drivers/panel/
+	$(if $(SPLASH_GL_BE14000),mkdir -p $(PKG_BUILD_DIR)/plat/mediatek/apsoc_common/drivers/panel/)
+	$(if $(SPLASH_GL_BE14000),$(CP) ./files/st7789p3_splash.bin \
+		$(PKG_BUILD_DIR)/plat/mediatek/apsoc_common/drivers/panel/)
 endef
 
 define Package/trusted-firmware-a-ram/install
