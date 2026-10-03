@@ -1,0 +1,30 @@
+From: Beaverfffan <1056715226@qq.com>
+Subject: [PATCH] perf annotate: pass al_addr to hist_entry__tui_annotate
+
+commit 1e0a0fffa4bb ("perf annotate: Add support to adjust offset of
+source line") added a fourth al_addr argument to
+hist_entry__tui_annotate(), but the call site in __cmd_annotate() was
+only updated in the TUI-enabled branch of util/hist.h.  When perf is
+built without TUI support the static inline stub in hist.h takes four
+arguments, so the three-argument call in builtin-annotate.c fails to
+compile:
+
+  builtin-annotate.c:523:31: error: too few arguments to function
+  'hist_entry__tui_annotate'
+
+Pass 0 as al_addr, matching the behaviour when the symbol has no
+synthesized address adjustment.
+
+Signed-off-by: Beaverfffan <1056715226@qq.com>
+---
+
+--- a/tools/perf/builtin-annotate.c
++++ b/tools/perf/builtin-annotate.c
+@@ -521,7 +521,7 @@
+ 			nd = rb_next(nd);
+ 		} else if (use_browser == 1) {
+-			key = hist_entry__tui_annotate(he, evsel, NULL);
++			key = hist_entry__tui_annotate(he, evsel, NULL, 0);
+ 
+ 			switch (key) {
+ 			case -1:
